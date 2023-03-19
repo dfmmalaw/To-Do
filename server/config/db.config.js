@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { MONGO_URI } from "../constants/config.const.js"
 
+//takes Mongo URI from env file and creates connection
 const connectDB = async () => {
 	try {
 		console.log('mongoURI - ', process.env.MONGO_URI);
