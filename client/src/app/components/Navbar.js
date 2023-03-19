@@ -1,18 +1,11 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
-import Avatar from "@mui/material/Avatar";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
 import { styled } from "@mui/material/styles";
 import MuiAppBar from "@mui/material/AppBar";
-import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../redux/actions/auth.action";
-import { useDispatch } from "react-redux";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
 
@@ -35,36 +28,16 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 export default function Navbar({ open, handleDrawerToggle }) {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const { isAuthenticated } = useAuth0();
+  const dWidth = isAuthenticated ? drawerWidth : 0;
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-  const handleLogout = () => {
-    dispatch(logout(navigate));
-    handleCloseUserMenu();
-  };
   return (
     <AppBar
       position="fixed"
       open={open}
       sx={{
-        width: { md: `calc(100% - ${drawerWidth}px)` },
-        ml: { md: `${drawerWidth}px` },
+        width: { md: `calc(100% - ${dWidth}px)` },
+        ml: { md: `${dWidth}px` },
       }}
     >
       <Toolbar>
@@ -93,36 +66,8 @@ export default function Navbar({ open, handleDrawerToggle }) {
             textDecoration: "none",
           }}
         >
-          LOGO
+          Task Management
         </Typography>
-        <Box sx={{ flexGrow: 0 }}>
-          <Tooltip title="Open settings">
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-            </IconButton>
-          </Tooltip>
-          <Menu
-            sx={{ mt: "45px" }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            <MenuItem onClick={handleCloseUserMenu}>
-              <Link to="/user/profile">Profile</Link>
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
-        </Box>
       </Toolbar>
     </AppBar>
   );

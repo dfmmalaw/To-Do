@@ -1,5 +1,4 @@
 import axios from "../../utils/axios";
-import { getCookie } from "../../utils/auth";
 import { setLoading, clearLoading } from "./loading.action";
 import {
   GET_USER_TASK_SUCCESS,
@@ -8,16 +7,16 @@ import {
 } from "../constants";
 import { encryptData } from "../../utils/crypto.util";
 
-export const createTask = (values, closeAddTask) => async (dispatch) => {
-  const token = getCookie("token");
-
-  console.log('priority - ', values.priority);
-
+export const createTask = (values, closeAddTask,token) => async (dispatch) => {
+  // const token = getCookie("token");
+  console.log('====================================');
+  console.log(token,'token');
+  console.log('====================================');
   let body = {
     title: encryptData(values.title),
     description: encryptData(values.description),
     due_date: encryptData(values.due_date),
-    priority: encryptData(values.priority)
+    priority: encryptData(values.priority),
   };
   try {
     dispatch(setLoading(true));
@@ -47,9 +46,9 @@ export const createTask = (values, closeAddTask) => async (dispatch) => {
   }
 };
 export const getUserTasks =
-  (limit = "5", offset = "0", status = "") =>
+  (limit = "5", offset = "0", status = "",token) =>
   async (dispatch) => {
-    const token = getCookie("token");
+    // const token = getCookie("token");
     try {
       dispatch(setLoading(true));
 
@@ -83,8 +82,8 @@ export const getUserTasks =
       dispatch(clearLoading(false));
     }
   };
-export const updateTask = (taskID, values,closeAddTask) => async (dispatch) => {
-  const token = getCookie("token");
+export const updateTask = (taskID, values,closeAddTask,token) => async (dispatch) => {
+  // const token = getCookie("token");
   let body = {};
   if (values.title) {
     body = {
@@ -144,8 +143,8 @@ export const updateTask = (taskID, values,closeAddTask) => async (dispatch) => {
     dispatch(clearLoading(false));
   }
 };
-export const deleteTaskByID = (id, closeConfirmDelete) => async (dispatch) => {
-  const token = getCookie("token");
+export const deleteTaskByID = (id, closeConfirmDelete,token) => async (dispatch) => {
+  // const token = getCookie("token");
   try {
     dispatch(setLoading(true));
     const { data } = await axios.delete(`/task/${id}`, {

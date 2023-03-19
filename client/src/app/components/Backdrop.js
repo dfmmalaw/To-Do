@@ -26,8 +26,6 @@ export default function SimpleBackdrop(status) {
       <ThemeBackdrop
         open={status}
         BackdropProps={{ style: { backgroundColor: "transparent" } }}
-        // fullWidth
-        // sx={{ width: "100px", height: "100px" }}
       >
         <Stack gap={1} justifyContent="center" alignItems="center">
           <CircularProgress color="inherit" />

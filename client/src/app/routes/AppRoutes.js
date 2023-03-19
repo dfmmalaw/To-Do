@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import App from "../App";
 import AuthRoutes from "./AuthRoutes.js";
 import PrivateRoutes from "./PrivateRoutes";
 
 const AppRoutes = () => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAuth0();
+
   return (
     <BrowserRouter basename="/">
       <Routes>
@@ -13,7 +16,7 @@ const AppRoutes = () => {
           {user && isAuthenticated ? (
             <>
               <Route path="/*" element={<PrivateRoutes />} />
-              <Route index element={<Navigate to="user/tasks" />} />
+              <Route index element={<Navigate to="user/profile" />} />
             </>
           ) : (
             <>

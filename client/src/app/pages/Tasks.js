@@ -42,6 +42,7 @@ import {
 } from "../redux/actions/task.action";
 import BackDrop from "../components/Backdrop";
 import { decryptData } from "../utils/crypto.util";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const DialogActions = styled(Box)(
   ({ theme }) => `
@@ -108,14 +109,16 @@ let TaskStatus = [
 
 const Tasks = () => {
   const dispatch = useDispatch();
+  const { getAccessTokenSilently } = useAuth0();
 
   const [currentTab, setCurrentTab] = useState("ALL");
   const [taskID, setTaskID] = useState(null);
   const [selectedTask, setSelectedTask] = useState(false);
 
-  const handleTabsChange = (_event, value) => {
+  const handleTabsChange = async (_event, value) => {
     setCurrentTab(value);
-    dispatch(getUserTasks(limit, String((page + 1 - 1) * limit), value));
+    const token = await getAccessTokenSilently();
+    dispatch(getUserTasks(limit, String(page * limit), value, token));
   };
   const isLoading = useSelector((state) => state.loading.loader);
   const tasks = useSelector((state) => state.task.tasks);
@@ -135,12 +138,6 @@ const Tasks = () => {
   };
 
   const [value, setValue] = useState(new Date());
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(value, "YYYY-MM-DD");
-
   const handleChangeDate = (newValue) => {
     setValue(newValue);
     const formattedDate = new Intl.DateTimeFormat("en-US", {
@@ -178,10 +175,12 @@ const Tasks = () => {
       ...validate_due_date,
     }),
     onSubmit: async (values) => {
-      dispatch(createTask(values, closeAddTask)).then(() => {
+      const token = await getAccessTokenSilently();
+      dispatch(createTask(values, closeAddTask, token)).then(() => {
         dispatch(
-          getUserTasks(limit, String((page + 1 - 1) * limit)),
-          currentTab
+          getUserTasks(limit, String(page * limit), "ALL", token),
+          currentTab,
+          token
         ).then(() => {
           setCurrentTab("ALL")
         });
@@ -209,7 +208,7 @@ const Tasks = () => {
     onSubmit: async (values, helpers) => {
       dispatch(updateTask(selectedTask._id, values, closeEditTask)).then(() => {
         dispatch(
-          getUserTasks(limit, String((page + 1 - 1) * limit)),
+          getUserTasks(limit, String(page * limit)),
           currentTab
         );
       });
@@ -218,34 +217,43 @@ const Tasks = () => {
 
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(5);
-  const handlePageChange = (_event, newPage) => {
+  const handlePageChange = async (_event, newPage) => {
     setPage(newPage - 1);
+    const token = await getAccessTokenSilently();
     dispatch(
       getUserTasks(
         String(limit),
-        String(limit * (newPage - 1) + 1 - 1),
-        currentTab
+        String(limit * (newPage - 1)),
+        currentTab,
+        token
       )
     );
   };
 
   useEffect(() => {
-    dispatch(getUserTasks(limit, String((page + 1 - 1) * limit)), currentTab);
+    let fetchData = async()=>{
+      const token = await getAccessTokenSilently();
+      dispatch(getUserTasks(limit, String(page * limit), currentTab,token));
+    }
+    fetchData();
   }, []);
 
-  const handleDeleteTask = () => {
-    dispatch(deleteTaskByID(taskID, closeConfirmDelete)).then(() => {
-      dispatch(getUserTasks(limit, String((page + 1 - 1) * limit)), currentTab);
+  const handleDeleteTask = async () => {
+    const token = await getAccessTokenSilently();
+    dispatch(deleteTaskByID(taskID, closeConfirmDelete,token)).then(() => {
+      dispatch(getUserTasks(limit, String(page * limit),currentTab,token));
     });
   };
-  const handlePriority = (taskID, priority) => {
-    dispatch(updateTask(taskID, { priority })).then(() => {
-      dispatch(getUserTasks(limit, String((page + 1 - 1) * limit)), currentTab);
+  const handlePriority = async (taskID, priority) => {
+    const token = await getAccessTokenSilently();
+    dispatch(updateTask(taskID, { priority },'',token)).then(() => {
+      dispatch(getUserTasks(limit, String(page * limit),currentTab,token));
     });
   };
-  const handleStatus = (taskID, status) => {
-    dispatch(updateTask(taskID, { status })).then(() => {
-      dispatch(getUserTasks(limit, String((page + 1 - 1) * limit)), currentTab);
+  const handleStatus = async(taskID, status) => {
+    const token = await getAccessTokenSilently();
+    dispatch(updateTask(taskID, { status },'',token)).then(() => {
+      dispatch(getUserTasks(limit, String(page * limit),currentTab,token));
     });
   };
 

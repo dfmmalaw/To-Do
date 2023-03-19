@@ -10,6 +10,7 @@ import { styled } from "@mui/material/styles";
 import { clearMessage } from "./redux/actions/message.action";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -21,6 +22,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 const App = () => {
+  const { isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
   const state = useSelector((state) => state.message);
   const { error, message } = state;
@@ -74,7 +76,9 @@ const App = () => {
       />
       <CssBaseline />
       <Navbar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
-      <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
+      {isAuthenticated &&
+        <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
+      }
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         <Box component="div">

@@ -1,46 +1,42 @@
 import { decryptData, encryptData } from "../utils/crypto.util.js";
 import Task from "../models/task.model.js";
 
-//Allows user to create new tasks
 export const createTaskController = async (req, res) => {
   const { title, description, due_date, priority } = req.body;
   try {
-    //takes user input, creates the Task object, and saves to Mongo
     const task = await Task.create({
-      user: req.user._id,
+      user: req.auth.sub.split("|")[1],
       title: decryptData(title),
       description: decryptData(description),
       due_date: decryptData(due_date),
       priority: decryptData(priority),
-      creator: req.user.name,
     });
-    return res.status(200).json({ message: "Task Successfull created",task });
+    return res.status(200).json({ message: "Task Successfull created", task });
   } catch (error) {
     return res.status(400).json({
       error: "Task Creation Failed. Please try again",
     });
   }
 };
-
-//queries all existing tasks in order to render them on task list page
 export const getAllTaskController = async (req, res) => {
   const limit = parseInt(req.query.limit);
   const offset = parseInt(req.query.offset);
   const status = req.query.status;
-  let where = {};
+  let where = {
+    user: req.auth.sub.split("|")[1],
+  };
   if (status && status != "ALL") {
     where = {
+      user: req.auth.sub.split("|")[1],
       status,
     };
   }
   try {
-    //get collection of tasks with pagination parameters
     const tasks = await Task.find(where).skip(offset).limit(limit);
-    const total_docs = await Task.countDocuments(where);
-    const totalPages = Math.ceil(total_docs / limit);
-    const currentPage = Math.ceil(total_docs % offset);
+    const total_pages = await Task.countDocuments(where);
+    const totalPages = Math.ceil(total_pages / limit);
+    const currentPage = Math.ceil(total_pages % offset);
     res.status(200).send({
-      //maps all field values to the tasks collection objects
       tasks: tasks.map((task) => ({
         _id: task._id,
         user: task.user,
@@ -49,10 +45,9 @@ export const getAllTaskController = async (req, res) => {
         priority: encryptData(task.priority),
         due_date: task.due_date,
         status: encryptData(task.status),
-        creator: encryptData(task.creator),
       })),
       pagination: {
-        total: total_docs,
+        total: total_pages,
         page: currentPage,
         pages: totalPages,
       },
@@ -64,8 +59,6 @@ export const getAllTaskController = async (req, res) => {
     });
   }
 };
-
-//gets task detail by id
 export const getTaskDetailController = async (req, res) => {
   try {
     const taskDetail = await Task.findById(req.params.id);
@@ -76,8 +69,6 @@ export const getTaskDetailController = async (req, res) => {
     });
   }
 };
-
-//allows user to update existing task
 export const updateTaskController = async (req, res) => {
   let data = {};
   if (req.body.title) {
@@ -120,8 +111,6 @@ export const updateTaskController = async (req, res) => {
     });
   }
 };
-
-//allows user to delete task
 export const deleteTaskController = async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);
