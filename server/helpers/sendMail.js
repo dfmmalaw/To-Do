@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 
+//nodemailer function for app to send email to new and existing users
 const SendMail = (options, res) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.office365.com',

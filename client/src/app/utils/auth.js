@@ -19,7 +19,7 @@ export const removeCookie = (key) => {
   }
 };
 
-// Get from cookie such as stored token
+// Get from cookie (such as stored token)
 // Will be useful when we need to make request to server with token
 export const getCookie = (key) => {
   if (window !== "undefined") {
@@ -41,19 +41,19 @@ export const removeLocalStorage = (key) => {
   }
 };
 
-// Auth enticate user by passing data to cookie and localstorage during signin
+// Authenticate user by passing data to cookie and localstorage during signin
 export const authenticate = (response) => {
   setCookie("token", response.token ? JSON.stringify(response.token) : null);
   setLocalStorage("user", response.user ? JSON.stringify(response.user) : null);
 };
 
-// Access user info from localstorage
+// Access user info from local storage
 export const isAuth = () => {
   if (window !== "undefined") {
     const cookieChecked = getCookie("token");
 
     if (cookieChecked !== null && cookieChecked !== undefined) {
-      // varify token
+      // verify token
       const decodedToken = decodeToken(cookieChecked);
       const expiresIn = new Date(decodedToken.exp * 1000);
       if (new Date() > expiresIn) {

@@ -271,9 +271,9 @@ const Tasks = () => {
             spacing={3}
           >
             <Box pb={2}>
-              <Typography variant="h3">Schedule Management</Typography>
+              <Typography variant="h3">Task Management</Typography>
               <Typography variant="subtitle2">
-                Manage all your existing schedule or add new schedule
+                Manage all your existing tasks or add new tasks
               </Typography>
             </Box>
           </Grid>
