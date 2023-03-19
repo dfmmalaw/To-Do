@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import { decryptData } from "../utils/crypto.util.js";
 
+//find user by userId
 export const readController = (req, res) => {
   const userId = req.params.id;
   User.findById(userId).exec((err, user) => {
@@ -14,7 +15,9 @@ export const readController = (req, res) => {
     res.json(user);
   });
 };
-export const updateController = async (req, res) => {
+
+//update user password
+export const updatePasswordController = async (req, res) => {
   const { password, old_password } = req.body;
   try {
     const user = await User.findById(req.params.id);
