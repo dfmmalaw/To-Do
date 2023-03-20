@@ -1,7 +1,5 @@
 import CryptoJS from "crypto-js";
-import {
-  SECRET_KEY,
-} from "../constants/config.const.js";
+import { SECRET_KEY } from "../constants/config.const.js";
 
 var encryptedString;
 
@@ -16,7 +14,7 @@ export const encryptData = (data) => {
 };
 
 export const decryptData = (encrypted) => {
-  console.log(encrypted,'encrypted');
+  console.log(encrypted, "encrypted");
   var decrypted = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
   return decrypted.toString(CryptoJS.enc.Utf8);
 };

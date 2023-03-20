@@ -1,29 +1,24 @@
 describe("Login", () => {
-  beforeEach(() => {
+  it("should successfully log into our app", () => {
     cy.visit("http://localhost:3000/auth/login");
-  });
-  it("should show error message if both fields are empty", () => {
-    cy.get("[data-testid=email] input").clear();
-    cy.get("[data-testid=password] input").clear();
-    cy.get("[data-testid=password] input").blur();
-    cy.wait(4000);
-  });
-  it("Email Not Exits", () => {
-    cy.get("[data-testid=email]").type("testexample@gmail.com");
-    cy.get("[data-testid=password]").type("TestUser@123");
-    cy.get("[data-testid=submit]").should("not.be.disabled").click();
-    cy.wait(4000);
-  });
-  it("Password not matched", () => {
-    cy.get("[data-testid=email]").type("deantasktest1@outlook.com");
-    cy.get("[data-testid=password]").type("TestWrong@123");
-    cy.get("[data-testid=submit]").should("not.be.disabled").click();
-    cy.wait(4000);
-  });
-  it("Logs in successfully", () => {
-    cy.get("[data-testid=email]").type("deantasktest1@outlook.com");
-    cy.get("[data-testid=password]").type("Test123*");
-    cy.get("[data-testid=submit]").should("not.be.disabled").click();
-    cy.url().should("include", "/user/tasks");
+    cy.get("button[data-testid=submit]").click();
+
+    // Login on Auth0.
+    cy.origin(
+      Cypress.env("auth_domain"),
+      {
+        args: {
+          username: Cypress.env("auth_username"),
+          password: Cypress.env("auth_password"),
+        },
+      },
+      ({ username, password }) => {
+        cy.get("input#username").type(username);
+        cy.get("input#password").type(password, { log: false });
+        cy.contains("button[value=default]", "Continue").click();
+      }
+    );
+
+    cy.url().should("equal", "http://localhost:3000/user/tasks");
   });
 });

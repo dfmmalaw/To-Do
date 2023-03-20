@@ -6,8 +6,6 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.config.js";
-import authRouter from "./routes/auth.routes.js";
-import userRouter from "./routes/user.routes.js";
 import taskRouter from "./routes/task.routes.js";
 import { PORT, CLIENT_URL, NODE_ENV } from "./constants/config.const.js";
 
@@ -27,8 +25,6 @@ app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "./uploads")));
 
 // Use Routes
-app.use("/api", authRouter);
-app.use("/api", userRouter);
 app.use("/api", taskRouter);
 
 app.get("/", (req, res) => {

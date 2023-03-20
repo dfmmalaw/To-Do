@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 //nodemailer function for app to send email to new and existing users
 const SendMail = (options, res) => {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.office365.com',
+    host: "smtp.office365.com",
     port: 587,
     secure: false,
     auth: {
@@ -19,7 +19,7 @@ const SendMail = (options, res) => {
   };
   transporter.sendMail(mailOptions, function (err, info) {
     if (err) {
-      console.log('sending email error - ', err);
+      console.log("sending email error - ", err);
       return res.status(400).json({
         error: "Something is wrong! Please try",
       });
