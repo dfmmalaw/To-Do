@@ -22,12 +22,6 @@ function getToken(jwks, authDomain, authAudience) {
   const token = jwks.token({
     aud: [authAudience],
     iss: authDomain,
-    "https://catkin.dev/permissions": [
-      {
-        group: "*",
-        role: "admin",
-      },
-    ],
     sub: "testprovider|12345678",
   });
   return token;
