@@ -7,10 +7,10 @@ import {
 } from "../constants";
 import { encryptData } from "../../utils/crypto.util";
 
-export const createTask = (values, closeAddTask,token) => async (dispatch) => {
+export const createTask = (values, closeAddTask, token) => async (dispatch) => {
   // const token = getCookie("token");
   console.log('====================================');
-  console.log(token,'token');
+  console.log(token, 'token');
   console.log('====================================');
   let body = {
     title: encryptData(values.title),
@@ -46,43 +46,43 @@ export const createTask = (values, closeAddTask,token) => async (dispatch) => {
   }
 };
 export const getUserTasks =
-  (limit = "5", offset = "0", status = "",token) =>
-  async (dispatch) => {
-    // const token = getCookie("token");
-    try {
-      dispatch(setLoading(true));
+  (limit = "5", offset = "0", status = "", token) =>
+    async (dispatch) => {
+      // const token = getCookie("token");
+      try {
+        dispatch(setLoading(true));
 
-      const { data } = await axios.get(
-        `/tasks?limit=${limit}&offset=${offset}&status=${status}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        const { data } = await axios.get(
+          `/tasks?limit=${limit}&offset=${offset}&status=${status}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      dispatch(clearLoading(false));
-      dispatch({
-        type: GET_USER_TASK_SUCCESS,
-        payload: data,
-      });
-    } catch (err) {
-      if (err.response) {
-        const {
-          response: {
-            data: { error },
-          },
-        } = err;
-
+        dispatch(clearLoading(false));
         dispatch({
-          type: GET_ERROR,
-          payload: error,
+          type: GET_USER_TASK_SUCCESS,
+          payload: data,
         });
+      } catch (err) {
+        if (err.response) {
+          const {
+            response: {
+              data: { error },
+            },
+          } = err;
+
+          dispatch({
+            type: GET_ERROR,
+            payload: error,
+          });
+        }
+        dispatch(clearLoading(false));
       }
-      dispatch(clearLoading(false));
-    }
-  };
-export const updateTask = (taskID, values,closeAddTask,token) => async (dispatch) => {
+    };
+export const updateTask = (taskID, values, closeAddTask, token) => async (dispatch) => {
   // const token = getCookie("token");
   let body = {};
   if (values.title) {
@@ -143,7 +143,7 @@ export const updateTask = (taskID, values,closeAddTask,token) => async (dispatch
     dispatch(clearLoading(false));
   }
 };
-export const deleteTaskByID = (id, closeConfirmDelete,token) => async (dispatch) => {
+export const deleteTaskByID = (id, closeConfirmDelete, token) => async (dispatch) => {
   // const token = getCookie("token");
   try {
     dispatch(setLoading(true));

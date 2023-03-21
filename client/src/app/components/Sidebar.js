@@ -1,11 +1,8 @@
 import * as React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
-
+import { Link } from "react-router-dom";
 import {
   Box,
   Drawer,
-  AppBar as MuiAppBar,
   List,
   CssBaseline,
   Divider,
@@ -18,9 +15,7 @@ import {
 import BackDrop from "../components/Backdrop";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
-import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/ExitToApp";
-import { useDispatch } from "react-redux";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
@@ -28,14 +23,8 @@ const drawerWidth = 240;
 export default function MiniDrawer({ mobileOpen, handleDrawerToggle, window }) {
   const { logout, isLoading } = useAuth0();
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const theme = useTheme();
   const container =
     window !== undefined ? () => window().document.body : undefined;
-  const handleLogout = () => {
-    dispatch(logout(navigate));
-  };
   const drawer = (
     <div>
       <Toolbar />

@@ -132,7 +132,7 @@ const Task = ({
                     disablePortal
                     id="combo-box-demo"
                     value={PriorityStatus.find(
-                      (priority) => priority.value == decryptData(task.priority)
+                      (priority) => priority.value === decryptData(task.priority)
                     )}
                     onChange={(_e, { value }) =>
                       handlePriority(task._id, value)
@@ -147,7 +147,7 @@ const Task = ({
                     disablePortal
                     id="combo-box-demo"
                     value={TaskStatus.find(
-                      (status) => status.value == decryptData(task.status)
+                      (status) => status.value === decryptData(task.status)
                     )}
                     onChange={(_e, { value }) => handleStatus(task._id, value)}
                     options={TaskStatus}

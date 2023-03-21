@@ -96,16 +96,17 @@ const TabsWrapper = styled(Tabs)(
     `
 );
 
-let PriorityStatus = [
+const PriorityStatus = [
   { label: "High", value: "HIGH" },
   { label: "Medium", value: "MEDIUM" },
   { label: "Low", value: "LOW" },
 ];
-let TaskStatus = [
+const TaskStatus = [
   { label: "Active", value: "ACTIVE" },
   { label: "Pending", value: "PENDING" },
   { label: "Completed", value: "COMPLETED" },
 ];
+const PAGE_LIMIT = 5
 
 const Tasks = () => {
   const dispatch = useDispatch();
@@ -115,17 +116,13 @@ const Tasks = () => {
   const [taskID, setTaskID] = useState(null);
   const [selectedTask, setSelectedTask] = useState(false);
 
-  const handleTabsChange = async (_event, value) => {
-    setCurrentTab(value);
-    const token = await getAccessTokenSilently();
-    dispatch(getUserTasks(limit, String(page * limit), value, token));
-  };
   const isLoading = useSelector((state) => state.loading.loader);
   const tasks = useSelector((state) => state.task.tasks);
 
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [openConfirmEdit, setOpenConfirmEdit] = useState(false);
   const [openAddTask, setOpenAddTask] = useState(false);
+  const [page, setPage] = useState(0);
 
   const closeConfirmDelete = () => {
     setOpenConfirmDelete(false);
@@ -135,27 +132,6 @@ const Tasks = () => {
   };
   const closeEditTask = () => {
     setOpenConfirmEdit(false);
-  };
-
-  const [value, setValue] = useState(new Date());
-  const handleChangeDate = (newValue) => {
-    setValue(newValue);
-    const formattedDate = new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(newValue, "YYYY-MM-DD");
-    formik.setFieldValue("due_date", formattedDate);
-  };
-
-  const editChangeDate = (newValue) => {
-    setValue(newValue);
-    const formattedDate = new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(newValue, "YYYY-MM-DD");
-    editFormik.setFieldValue("due_date", formattedDate);
   };
 
   const validate_title = ValidateTitle();
@@ -178,7 +154,32 @@ const Tasks = () => {
       const token = await getAccessTokenSilently();
       dispatch(createTask(values, closeAddTask, token)).then(() => {
         dispatch(
-          getUserTasks(limit, String(page * limit), "ALL", token),
+          getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), "ALL", token),
+          currentTab,
+          token
+        ).then(() => {
+          setCurrentTab("ALL")
+        });
+      });
+    },
+  });
+
+  const editFormik = useFormik({
+    initialValues: {
+      title: "",
+      description: "",
+      due_date: "",
+    },
+    validationSchema: Yup.object({
+      ...validate_title,
+      ...validate_description,
+      ...validate_due_date,
+    }),
+    onSubmit: async (values) => {
+      const token = await getAccessTokenSilently();
+      dispatch(updateTask(selectedTask._id, values, closeEditTask, token)).then(() => {
+        dispatch(
+          getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), "ALL", token),
           currentTab,
           token
         ).then(() => {
@@ -195,65 +196,73 @@ const Tasks = () => {
         "description",
         decryptData(selectedTask.description)
       );
-      editFormik.setFieldValue("due_date", dayjs(selectedTask.due_date));
+      editFormik.setFieldValue("due_date", selectedTask.due_date);
     }
   }, [selectedTask]);
 
-  const editFormik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      due_date: "",
-    },
-    onSubmit: async (values, helpers) => {
-      dispatch(updateTask(selectedTask._id, values, closeEditTask)).then(() => {
-        dispatch(
-          getUserTasks(limit, String(page * limit)),
-          currentTab
-        );
-      });
-    },
-  });
+  useEffect(() => {
+    let fetchData = async () => {
+      const token = await getAccessTokenSilently();
+      dispatch(getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), currentTab, token));
+    }
+    fetchData();
+  }, [currentTab, page, getAccessTokenSilently]);
 
-  const [page, setPage] = useState(0);
-  const [limit, setLimit] = useState(5);
   const handlePageChange = async (_event, newPage) => {
     setPage(newPage - 1);
     const token = await getAccessTokenSilently();
     dispatch(
       getUserTasks(
-        String(limit),
-        String(limit * (newPage - 1)),
+        String(PAGE_LIMIT),
+        String(PAGE_LIMIT * (newPage - 1)),
         currentTab,
         token
       )
     );
   };
 
-  useEffect(() => {
-    let fetchData = async()=>{
-      const token = await getAccessTokenSilently();
-      dispatch(getUserTasks(limit, String(page * limit), currentTab,token));
-    }
-    fetchData();
-  }, []);
+  const handleChangeDate = (newValue) => {
+    const formattedDate = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(newValue, "YYYY-MM-DD");
+    formik.setFieldValue("due_date", formattedDate);
+  };
+
+  const editChangeDate = (newValue) => {
+    const formattedDate = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(newValue, "YYYY-MM-DD");
+    editFormik.setFieldValue("due_date", formattedDate);
+  };
+
+  const handleTabsChange = async (_event, value) => {
+    setCurrentTab(value);
+    const token = await getAccessTokenSilently();
+    dispatch(getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), value, token));
+  };
 
   const handleDeleteTask = async () => {
     const token = await getAccessTokenSilently();
-    dispatch(deleteTaskByID(taskID, closeConfirmDelete,token)).then(() => {
-      dispatch(getUserTasks(limit, String(page * limit),currentTab,token));
+    dispatch(deleteTaskByID(taskID, closeConfirmDelete, token)).then(() => {
+      dispatch(getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), currentTab, token));
     });
   };
+
   const handlePriority = async (taskID, priority) => {
     const token = await getAccessTokenSilently();
-    dispatch(updateTask(taskID, { priority },'',token)).then(() => {
-      dispatch(getUserTasks(limit, String(page * limit),currentTab,token));
+    dispatch(updateTask(taskID, { priority }, '', token)).then(() => {
+      dispatch(getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), currentTab, token));
     });
   };
-  const handleStatus = async(taskID, status) => {
+
+  const handleStatus = async (taskID, status) => {
     const token = await getAccessTokenSilently();
-    dispatch(updateTask(taskID, { status },'',token)).then(() => {
-      dispatch(getUserTasks(limit, String(page * limit),currentTab,token));
+    dispatch(updateTask(taskID, { status }, '', token)).then(() => {
+      dispatch(getUserTasks(PAGE_LIMIT, String(page * PAGE_LIMIT), currentTab, token));
     });
   };
 
@@ -374,7 +383,7 @@ const Tasks = () => {
                             <TextField
                               error={Boolean(
                                 formik.touched.description &&
-                                  formik.errors.description
+                                formik.errors.description
                               )}
                               fullWidth
                               margin="normal"
@@ -488,7 +497,7 @@ const Tasks = () => {
                             <TextField
                               error={Boolean(
                                 editFormik.touched.title &&
-                                  editFormik.errors.title
+                                editFormik.errors.title
                               )}
                               fullWidth
                               margin="normal"
@@ -509,7 +518,7 @@ const Tasks = () => {
                             <TextField
                               error={Boolean(
                                 editFormik.touched.description &&
-                                  editFormik.errors.description
+                                editFormik.errors.description
                               )}
                               fullWidth
                               margin="normal"
